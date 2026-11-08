@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jawad's Notebook - Personal Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React and Babel are loaded from the internet (CDN), so no installation is needed -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+
+  <!-- Our React code (JSX). Babel converts it so the browser can run it. -->
+  <script type="text/babel">
+const { useState, useMemo } = React;
+
+/* ---------- Settings ---------- */
+const POSTS_PER_PAGE = 6;                         // limit of visible posts per page
+const CATEGORIES = ["All", "Tech", "Travel", "Food"];
+
+/* ---------- Blog posts (data) ---------- */
+const POSTS = [
+  { id: 1, category: "Tech", title: "Getting Started with React Hooks", text: "A simple guide to useState and useEffect for beginners.", date: "2026-10-22" },
+  { id: 2, category: "Travel", title: "A Weekend in Swat Valley", text: "Green hills, cold rivers and where to stop for tea.", date: "2026-10-18" },
+  { id: 3, category: "Food", title: "The Perfect Cup of Chai", text: "Simple steps for a strong, creamy tea at home.", date: "2026-10-14" },
+  { id: 4, category: "Tech", title: "5 Free Tools Every Beginner Developer Needs", text: "Editors, browsers and helpers that make coding easier.", date: "2026-10-10" },
+  { id: 5, category: "Food", title: "Easy Weeknight Chapli Kabab", text: "Crispy outside, juicy inside, ready in under an hour.", date: "2026-10-06" },
+  { id: 6, category: "Travel", title: "Packing Light for Mountain Trips", text: "What to bring, what to skip and how to stay comfortable.", date: "2026-10-02" },
+  { id: 7, category: "Tech", title: "How I Learned CSS Grid in One Weekend", text: "The small projects that made grid finally click.", date: "2026-09-28" },
+  { id: 8, category: "Food", title: "Street Food Favorites I Keep Coming Back To", text: "Snacks that taste best from a roadside stall.", date: "2026-09-24" },
+  { id: 9, category: "Travel", title: "Road Trip Tips for Beginners", text: "Plan your route, carry snacks and keep a spare plan.", date: "2026-09-20" },
+  { id: 10, category: "Tech", title: "Why Every Student Should Learn Git", text: "Save your work, undo mistakes and share code with others.", date: "2026-09-15" },
+  { id: 11, category: "Food", title: "Baking Bread Without an Oven", text: "A pan, a lid and patience: that is all you need.", date: "2026-09-10" },
+  { id: 12, category: "Travel", title: "Small Towns Worth Visiting", text: "Quiet places with friendly people and great views.", date: "2026-09-05" },
+];
+
+/* ---------- Cover images: small SVG pictures made in code ---------- */
+const PALETTES = {
+  Tech: [["#4f46e5", "#06b6d4"], ["#0ea5e9", "#6366f1"], ["#7c3aed", "#38bdf8"], ["#2563eb", "#14b8a6"]],
+  Travel: [["#f97316", "#facc15"], ["#10b981", "#0ea5e9"], ["#ec4899", "#f97316"], ["#14b8a6", "#84cc16"]],
+  Food: [["#ef4444", "#f59e0b"], ["#d97706", "#fb7185"], ["#f43f5e", "#fb923c"], ["#b45309", "#fbbf24"]],
+};
+
+const SHAPES = {
+  Tech: '<rect x="90" y="55" width="220" height="140" rx="14" fill="#fff" opacity=".92"/><rect x="108" y="78" width="90" height="10" rx="5" fill="#4f46e5"/><rect x="108" y="102" width="150" height="10" rx="5" fill="#94a3b8"/><rect x="108" y="126" width="120" height="10" rx="5" fill="#94a3b8"/><rect x="108" y="150" width="70" height="10" rx="5" fill="#94a3b8"/><rect x="150" y="205" width="100" height="12" rx="6" fill="#fff" opacity=".7"/>',
+  Travel: '<circle cx="300" cy="70" r="30" fill="#fff" opacity=".85"/><polygon points="40,230 150,90 230,200 280,140 380,230" fill="#fff" opacity=".9"/><polygon points="150,90 175,125 150,115 128,128" fill="#e2e8f0"/><polygon points="0,230 70,170 140,230" fill="#fff" opacity=".55"/>',
+  Food: '<path d="M95 120h210a105 105 0 0 1-210 0z" fill="#fff" opacity=".92"/><rect x="85" y="112" width="230" height="14" rx="7" fill="#fff"/><path d="M160 90c-14-18 14-24 0-44M200 90c-14-18 14-24 0-44M240 90c-14-18 14-24 0-44" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/>',
+};
+
+function makeCover(category, index) {
+  const [c1, c2] = PALETTES[category][index % 4];
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient></defs>' +
+    '<rect width="400" height="250" fill="url(#g)"/>' + SHAPES[category] + "</svg>";
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+function formatDate(iso) {
+  return new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+/* ---------- Components ---------- */
+
+function Header() {
+  return (
+    <header className="site-header">
+      <div className="container">
+        <h1>Jawad&rsquo;s Notebook</h1>
+        <p>Short stories about tech, travel and food.</p>
+      </div>
+    </header>
+  );
+}
+
+// Props: value and onChange come from the parent (App)
+function SearchBar({ value, onChange }) {
+  return (
+    <input
+      className="search"
+      type="search"
+      placeholder="Search posts by title..."
+      aria-label="Search posts by title"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  );
+}
+
+function CategoryFilter({ active, onChange }) {
+  return (
+    <div className="filters" role="group" aria-label="Filter by category">
+      {CATEGORIES.map((c) => {
+        const count = c === "All" ? POSTS.length : POSTS.filter((p) => p.category === c).length;
+        return (
+          <button key={c} className={"chip " + (active === c ? "active" : "")} aria-pressed={active === c} onClick={() => onChange(c)}>
+            {c} <span>{count}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function PostCard({ post }) {
+  return (
+    <article className="post">
+      <img src={makeCover(post.category, post.id)} alt={post.title + " cover"} loading="lazy" />
+      <div className="post-body">
+        <div className="meta">
+          <span className={"pill " + post.category.toLowerCase()}>{post.category}</span>
+          <time dateTime={post.date}>{formatDate(post.date)}</time>
+        </div>
+        <h2>{post.title}</h2>
+        <p>{post.text}</p>
+        <a className="read" href="#">Read more &rarr;</a>
+      </div>
+    </article>
+  );
+}
+
+function Pagination({ page, totalPages, onChange }) {
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  return (
+    <nav className="pagination" aria-label="Pages">
+      <button disabled={page === 1} onClick={() => onChange(page - 1)}>&larr; Prev</button>
+      {pages.map((n) => (
+        <button key={n} className={n === page ? "current" : ""} aria-current={n === page ? "page" : undefined} onClick={() => onChange(n)}>{n}</button>
+      ))}
+      <button disabled={page === totalPages} onClick={() => onChange(page + 1)}>Next &rarr;</button>
+    </nav>
+  );
+}
+
+function App() {
+  const [category, setCategory] = useState("All");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+
+  // Filter by category AND by the search word in the title
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return POSTS.filter((p) => (category === "All" || p.category === category) && p.title.toLowerCase().includes(q));
+  }, [category, query]);
+
+  // Show only POSTS_PER_PAGE posts at a time
+  const totalPages = Math.max(1, Math.ceil(filtered.length / POSTS_PER_PAGE));
+  const visible = filtered.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+
+  const changeCategory = (c) => { setCategory(c); setPage(1); };
+  const changeQuery = (q) => { setQuery(q); setPage(1); };
+  const changePage = (n) => {
+    setPage(n);
+    document.getElementById("posts").scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <>
+      <Header />
+      <main className="container" id="posts">
+        <div className="toolbar">
+          <CategoryFilter active={category} onChange={changeCategory} />
+          <SearchBar value={query} onChange={changeQuery} />
+        </div>
+
+        <p className="count" aria-live="polite">
+          Showing {visible.length} of {filtered.length} {filtered.length === 1 ? "post" : "posts"}
+        </p>
+
+        {visible.length > 0 ? (
+          <div className="grid">
+            {visible.map((p) => <PostCard key={p.id} post={p} />)}
+          </div>
+        ) : (
+          <div className="empty">
+            <h3>No posts found</h3>
+            <p>Try a different word or choose another category.</p>
+          </div>
+        )}
+
+        {totalPages > 1 && <Pagination page={page} totalPages={totalPages} onChange={changePage} />}
+      </main>
+      <footer className="footer">&copy; 2026 Jawad&rsquo;s Notebook. Made for the Elevvo internship.</footer>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+</body>
+</html>

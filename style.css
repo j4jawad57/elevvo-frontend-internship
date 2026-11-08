@@ -1,0 +1,126 @@
+/* ---------- Basics ---------- */
+:root {
+  --bg: #faf7f2;
+  --card: #ffffff;
+  --text: #2b2a33;
+  --muted: #6d6a78;
+  --accent: #e4572e;
+  --accent-dark: #c9431d;
+  --border: #eadfd2;
+  --dark: #26233a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- Header (blog title) ---------- */
+.site-header { background: var(--dark); color: #fff; padding: 46px 0 40px; text-align: center; }
+.site-header h1 { font-size: 2.6rem; letter-spacing: -0.5px; }
+.site-header p { color: #c8c4e0; margin-top: 6px; font-size: 1.1rem; }
+
+/* ---------- Filter + search ---------- */
+main { padding-top: 30px; padding-bottom: 50px; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.chip {
+  padding: 9px 18px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.chip span { opacity: 0.6; font-weight: 500; margin-left: 4px; }
+.chip:hover { border-color: var(--accent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.search {
+  width: 280px;
+  max-width: 100%;
+  padding: 11px 16px;
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+}
+.search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(228, 87, 46, 0.18); }
+
+.count { margin: 20px 0 16px; color: var(--muted); font-size: 0.95rem; }
+
+/* ---------- Post cards (responsive grid) ---------- */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+.post {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.post:hover { transform: translateY(-5px); box-shadow: 0 14px 30px rgba(38, 35, 58, 0.12); }
+.post img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
+.post-body { display: flex; flex-direction: column; flex: 1; padding: 18px; }
+
+.meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-size: 0.85rem; color: var(--muted); }
+.pill { padding: 3px 12px; border-radius: 999px; font-weight: 600; color: #fff; }
+.pill.tech { background: #4f46e5; }
+.pill.travel { background: #0f9d7a; }
+.pill.food { background: #e4572e; }
+
+.post h2 { font-size: 1.15rem; line-height: 1.35; margin-bottom: 8px; color: var(--dark); }
+.post p { flex: 1; color: var(--muted); margin-bottom: 14px; }
+.read { font-weight: 600; color: var(--accent); text-decoration: none; }
+.read:hover { color: var(--accent-dark); text-decoration: underline; }
+
+/* ---------- No results ---------- */
+.empty { text-align: center; padding: 60px 20px; background: var(--card); border: 1px dashed var(--border); border-radius: 16px; }
+.empty h3 { color: var(--dark); margin-bottom: 6px; }
+.empty p { color: var(--muted); }
+
+/* ---------- Pagination ---------- */
+.pagination { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 34px; }
+.pagination button {
+  min-width: 42px;
+  padding: 9px 14px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.pagination button:hover:not(:disabled) { border-color: var(--accent); }
+.pagination button.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pagination button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.footer { text-align: center; padding: 26px 20px; color: var(--muted); border-top: 1px solid var(--border); font-size: 0.9rem; }
+
+/* ---------- Tablet and phone ---------- */
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .site-header h1 { font-size: 2rem; }
+  .grid { grid-template-columns: 1fr; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search { width: 100%; }
+}
