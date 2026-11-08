@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow - Organize your tasks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React and Babel are loaded from the internet (CDN), so no installation is needed -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+
+  <!-- Our React code (JSX). Babel converts it so the browser can run it. -->
+  <script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ---------- Data (each section is built from these lists) ---------- */
+const NAV_LINKS = [
+  ["Features", "#features"],
+  ["Reviews", "#reviews"],
+  ["Pricing", "#pricing"],
+  ["Contact", "#contact"],
+];
+
+const FEATURES = [
+  { icon: "list", title: "Smart Task Lists", text: "Create lists, add due dates and sort tasks by priority. Everything you need to do, in one clear place." },
+  { icon: "bell", title: "Reminders & Deadlines", text: "Get a gentle nudge before a task is due, so you never miss an important deadline again." },
+  { icon: "users", title: "Team Collaboration", text: "Share lists with your team, assign tasks and see progress in real time." },
+];
+
+const REVIEWS = [
+  { quote: "TaskFlow cut my planning time in half. I finally know what to do every morning.", name: "Sara Ahmed", role: "Freelance Designer" },
+  { quote: "Our team stopped missing deadlines in the first month. It is simple and it just works.", name: "Daniel Brooks", role: "Project Manager" },
+  { quote: "Clean, fast and easy to use. The best task app I have tried so far.", name: "Hina Khan", role: "University Student" },
+];
+
+const PLANS = [
+  { name: "Free", price: "$0", note: "For personal use", features: ["Up to 3 lists", "Basic reminders", "Mobile access"], button: "Start Free" },
+  { name: "Pro", price: "$9", note: "For busy professionals", features: ["Unlimited lists", "Smart reminders", "Priority labels", "Priority support"], button: "Go Pro", featured: true },
+  { name: "Team", price: "$29", note: "For small teams", features: ["Everything in Pro", "Up to 10 members", "Shared lists", "Progress reports"], button: "Start Team Plan" },
+];
+
+const SOCIALS = [
+  { label: "LinkedIn", text: "in", href: "#" },
+  { label: "Facebook", text: "f", href: "#" },
+  { label: "X", text: "X", href: "#" },
+];
+
+/* ---------- Small reusable components ---------- */
+
+// Icon: draws an SVG icon by name
+function Icon({ name }) {
+  const paths = {
+    list: <path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2" />,
+    bell: <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />,
+    users: <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M21 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />,
+  };
+  return (
+    <svg viewBox="0 0 24 24" className="icon" aria-hidden="true">
+      {paths[name]}
+    </svg>
+  );
+}
+
+// Reveal (bonus): fades a section in when it scrolls into view
+function Reveal({ children, delay = 0, className = "" }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !("IntersectionObserver" in window)) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal ${visible ? "show" : ""} ${className}`}
+      style={{ transitionDelay: delay + "ms" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ---------- Page sections ---------- */
+
+function Navbar() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="nav">
+      <div className="container nav-inner">
+        <a className="brand" href="#top">
+          <span className="brand-mark">&#10003;</span> TaskFlow
+        </a>
+        <button className="menu-btn" aria-label="Toggle menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? "\u2715" : "\u2630"}
+        </button>
+        <nav className={"nav-links " + (open ? "open" : "")}>
+          {NAV_LINKS.map(([label, href]) => (
+            <a key={label} href={href} onClick={() => setOpen(false)}>{label}</a>
+          ))}
+          <a className="btn btn-small" href="#pricing" onClick={() => setOpen(false)}>Get Started</a>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function Hero() {
+  const tasks = ["Design the landing page", "Send invoice to client", "Plan next week"];
+  const [done, setDone] = useState([true, false, false]);
+
+  const toggle = (i) => setDone(done.map((d, idx) => (idx === i ? !d : d)));
+  const finished = done.filter(Boolean).length;
+
+  return (
+    <section className="hero" id="top">
+      <div className="container hero-grid">
+        <Reveal>
+          <p className="tag">Task management made simple</p>
+          <h1>Organize your tasks. <span>Get more done.</span></h1>
+          <p className="lead">TaskFlow helps you plan your day, track deadlines and finish what matters, without the stress.</p>
+          <div className="hero-actions">
+            <a className="btn" href="#pricing">Get Started Free</a>
+            <a className="btn btn-outline" href="#features">See Features</a>
+          </div>
+        </Reveal>
+
+        <Reveal delay={150}>
+          <div className="mock">
+            <div className="mock-head">
+              <b>Today</b>
+              <span>{finished}/{tasks.length} done</span>
+            </div>
+            {tasks.map((t, i) => (
+              <button key={t} className={"mock-task " + (done[i] ? "done" : "")} onClick={() => toggle(i)}>
+                <span className="check">{done[i] ? "\u2713" : ""}</span>
+                {t}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  return (
+    <section className="section" id="features">
+      <div className="container">
+        <Reveal>
+          <h2>Everything you need to stay on track</h2>
+          <p className="sub">Three simple tools that keep your work organized.</p>
+        </Reveal>
+        <div className="grid-3">
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.title} delay={i * 120}>
+              <div className="card feature">
+                <div className="icon-wrap"><Icon name={f.icon} /></div>
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Reviews() {
+  return (
+    <section className="section alt" id="reviews">
+      <div className="container">
+        <Reveal>
+          <h2>Loved by happy users</h2>
+          <p className="sub">Here is what people say about TaskFlow.</p>
+        </Reveal>
+        <div className="grid-3">
+          {REVIEWS.map((r, i) => (
+            <Reveal key={r.name} delay={i * 120}>
+              <figure className="card review">
+                <div className="stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <blockquote>&ldquo;{r.quote}&rdquo;</blockquote>
+                <figcaption><b>{r.name}</b><span>{r.role}</span></figcaption>
+              </figure>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Pricing() {
+  return (
+    <section className="section" id="pricing">
+      <div className="container">
+        <Reveal>
+          <h2>Simple pricing</h2>
+          <p className="sub">Start free. Upgrade when you are ready.</p>
+        </Reveal>
+        <div className="grid-3 pricing">
+          {PLANS.map((p, i) => (
+            <Reveal key={p.name} delay={i * 120}>
+              <div className={"card plan " + (p.featured ? "featured" : "")}>
+                {p.featured && <span className="badge">Most popular</span>}
+                <h3>{p.name}</h3>
+                <p className="note">{p.note}</p>
+                <p className="price">{p.price}<small>{p.name === "Free" ? "" : " / month"}</small></p>
+                <ul>
+                  {p.features.map((f) => <li key={f}>{f}</li>)}
+                </ul>
+                <a className={"btn " + (p.featured ? "" : "btn-outline")} href="#contact">{p.button}</a>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer" id="contact">
+      <div className="container footer-grid">
+        <div>
+          <a className="brand light" href="#top"><span className="brand-mark">&#10003;</span> TaskFlow</a>
+          <p className="foot-text">Organize your tasks and get more done.</p>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <a href="mailto:hello@taskflow.example">hello@taskflow.example</a>
+          <a href="tel:+15550100">+1 555 0100</a>
+          <a href="#top">Support Center</a>
+        </div>
+        <div>
+          <h4>Follow us</h4>
+          <div className="socials">
+            {SOCIALS.map((s) => (
+              <a key={s.label} href={s.href} aria-label={s.label} className="social">{s.text}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="copy">&copy; 2026 TaskFlow. A fictional app built for the Elevvo internship.</p>
+    </footer>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <Features />
+        <Reviews />
+        <Pricing />
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+</body>
+</html>
