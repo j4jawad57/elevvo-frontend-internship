@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task 1 - Collapsible Sidebar</title>
+  <link rel="stylesheet" href="style.css">
+</head>          
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Logo placeholder at the top -->
+    <div class="logo">
+      <span class="logo-mark">L</span>
+      <span class="logo-text">Your Logo</span>
+    </div>
+
+    <!-- 5 links with icons -->
+    <nav>
+      <ul class="menu">
+        <li>
+          <a href="#" class="active" title="Dashboard">
+            <span class="label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" title="Projects">
+
+            <span class="label">Projects</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" title="Messages">
+
+            <span class="label">Messages</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" title="Analytics">
+
+            <span class="label">Analytics</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" title="Settings">
+            
+            <span class="label">Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Dark layer behind the sidebar on mobile -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+    <header class="topbar">
+      <!-- Button that opens and closes the sidebar -->
+      <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar" aria-expanded="true">
+        
+      </button>
+      <h1>Dashboard</h1>
+    </header>
+
+    <section class="page">
+      <h2>Welcome back!</h2>
+      <p>Click the button at the top left to open or close the sidebar. On a phone, the sidebar slides in over the page.</p>
+      <div class="cards">
+        <div class="card"><h3>Projects</h3><p>12</p></div>
+        <div class="card"><h3>Messages</h3><p>5</p></div>
+        <div class="card"><h3>Tasks due</h3><p>3</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
